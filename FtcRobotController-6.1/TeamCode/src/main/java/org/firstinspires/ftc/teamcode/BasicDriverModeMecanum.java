@@ -5,7 +5,9 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -18,6 +20,9 @@ public class BasicDriverModeMecanum extends OpMode
     private DcMotor front_left = null;
     private DcMotor back_right = null;
     private DcMotor back_left = null;
+    private DcMotor wobble_arm = null;
+    private Servo wobble_servo = null;
+    private Servo fire_servo = null;
 
     // Code to run ONCE when the driver hits INIT
     @Override
@@ -29,6 +34,9 @@ public class BasicDriverModeMecanum extends OpMode
         front_left = hardwareMap.get(DcMotor.class, "front_left");
         back_right = hardwareMap.get(DcMotor.class, "back_right");
         back_left = hardwareMap.get(DcMotor.class, "back_left");
+        wobble_arm = hardwareMap.get(DcMotor.class, "wobble_arm");
+        wobble_servo = hardwareMap.get(Servo.class, "wobble_servo");
+        fire_servo = hardwareMap.get(Servo.class, "fire_servo");
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -48,8 +56,7 @@ public class BasicDriverModeMecanum extends OpMode
      * Code to run ONCE after the driver hits STOP
      */
     @Override
-    public void stop() {
-    }
+    public void stop() { }
 
     // Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
     @Override
@@ -60,11 +67,33 @@ public class BasicDriverModeMecanum extends OpMode
             stop();
         }
 
+        // Wobble arm power, don't go overboard
+        double wobblePower = 0;
+        if (gamepad1.right_trigger > 0.05) {
+            wobblePower = gamepad1.right_trigger/2;
+        } else if (gamepad1.left_trigger > 0.05) {
+            wobblePower = -gamepad1.left_trigger/2;
+        }
+
+        // Wobble claw servo
+        if (gamepad1.a) {
+            wobble_servo.setPosition(0.38);
+        } else if (gamepad1.b) {
+            wobble_servo.setPosition(0.0);
+        }
+
+        // Fire servo
+        if (gamepad1.x) {
+			fire_servo.setPosition(1);
+		} else if (gamepad1.y) {
+			fire_servo.setPosition(0);
+		}
+
         // Mecanum drive is controlled with three axes: drive (front-and-back),
         // strafe (left-and-right), and twist (rotating the whole chassis).
-        double drive  = gamepad1.left_stick_y;
-        double strafe = -gamepad1.left_stick_x;
-        double twist  = -gamepad1.right_stick_x;
+        double drive  = gamepad1.right_stick_y;
+        double strafe = -gamepad1.right_stick_x;
+        double twist  = -gamepad1.left_stick_x;
 
         /*
          * If we had a gyro and wanted to do field-oriented control, here
@@ -114,6 +143,9 @@ public class BasicDriverModeMecanum extends OpMode
         front_right.setPower(speeds[1]);
         back_left.setPower(speeds[2]);
         back_right.setPower(speeds[3]);
+
+        // apply power to wobble arm
+        wobble_arm.setPower(wobblePower);
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());

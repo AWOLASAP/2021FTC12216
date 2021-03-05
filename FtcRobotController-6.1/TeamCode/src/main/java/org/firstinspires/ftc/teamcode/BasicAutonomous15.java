@@ -4,12 +4,11 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Basic Auto", group="Autonomous")
-public class BasicAutonomous extends OpMode
+@Autonomous(name="Basic Auto15", group="Autonomous")
+public class BasicAutonomous15 extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -79,7 +78,7 @@ public class BasicAutonomous extends OpMode
         back_right.setPower(speeds[3]);
 
         try {
-            Thread.sleep(1000);
+            Thread.sleep(1500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
