@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Basic Auto25", group="Autonomous")
-public class BasicAutonomous25 extends OpMode
+@Autonomous(name="Backwards B Zone", group="Autonomous")
+public class BackwardsBZone extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -16,6 +16,32 @@ public class BasicAutonomous25 extends OpMode
     private DcMotor front_left = null;
     private DcMotor back_right = null;
     private DcMotor back_left = null;
+
+    //// User Functions
+    // Stop the robot
+    public void stopRobot() {
+        // NOT SO MUCH FULL POWAH!
+        front_left.setPower(0);
+        front_right.setPower(0);
+        back_left.setPower(0);
+        back_right.setPower(0);
+    }
+
+    // Move Forward or Backwards
+    public void frontBack(double powah, int time) {
+        // USER DEFINED POWAH!
+        front_left.setPower(powah);
+        front_right.setPower(powah);
+        back_left.setPower(powah);
+        back_right.setPower(powah);
+
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    //// End of User Functions
 
     // Code to run ONCE when the driver hits INIT
     @Override
@@ -27,6 +53,9 @@ public class BasicAutonomous25 extends OpMode
         front_left = hardwareMap.get(DcMotor.class, "front_left");
         back_right = hardwareMap.get(DcMotor.class, "back_right");
         back_left = hardwareMap.get(DcMotor.class, "back_left");
+
+        front_left.setDirection(DcMotor.Direction.REVERSE);
+        back_right.setDirection(DcMotor.Direction.REVERSE);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -63,37 +92,15 @@ public class BasicAutonomous25 extends OpMode
          * https://en.wikipedia.org/wiki/Rotation_(mathematics)#Two_dimensions
          */
 
-        // FULL POWAH!
-        double[] speeds = {
-                (-1.0),
-                (1.0),
-                (1.0),
-                (-1.0)
-        };
+        // Move backwards into the B zone
+        frontBack(-1, 2500);
 
-        // apply the calculated values to the motors.
-        front_left.setPower(speeds[0]);
-        front_right.setPower(speeds[1]);
-        back_left.setPower(speeds[2]);
-        back_right.setPower(speeds[3]);
+        // Stop before moving over the line
+        stopRobot();
 
-        try {
-            Thread.sleep(2500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        // Move forward over the line
+        frontBack(1, 500);
 
-        // NOT SO MUCH FULL POWAH!
-        speeds[0] = 0.0;
-        speeds[1] = 0.0;
-        speeds[2] = 0.0;
-        speeds[3] = 0.0;
-
-        // apply the calculated values to the motors.
-        front_left.setPower(speeds[0]);
-        front_right.setPower(speeds[1]);
-        back_left.setPower(speeds[2]);
-        back_right.setPower(speeds[3]);
 
     }
 

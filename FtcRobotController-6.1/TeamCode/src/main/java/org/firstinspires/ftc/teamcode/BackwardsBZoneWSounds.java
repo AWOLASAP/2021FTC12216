@@ -2,13 +2,16 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import android.content.Context;
+
+import com.qualcomm.ftccommon.SoundPlayer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Basic Auto15", group="Autonomous")
-public class BasicAutonomous15 extends OpMode
+@Autonomous(name="Backwards B Zone W/ Sounds", group="Autonomous")
+public class BackwardsBZoneWSounds extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -17,9 +20,54 @@ public class BasicAutonomous15 extends OpMode
     private DcMotor back_right = null;
     private DcMotor back_left = null;
 
+    //// Sound Stuff
+    // List of available sound resources
+    String  sounds[] =  {"ss_alarm", "ss_bb8_down", "ss_bb8_up", "ss_darth_vader", "ss_fly_by",
+            "ss_mf_fail", "ss_laser", "ss_laser_burst", "ss_light_saber", "ss_light_saber_long", "ss_light_saber_short",
+            "ss_light_speed", "ss_mine", "ss_power_up", "ss_r2d2_up", "ss_roger_roger", "ss_siren", "ss_wookie" };
+
+    boolean soundPlaying = false;
+
+    Context myApp = hardwareMap.appContext;
+    //// Sound Stuff
+
+
+    //// User Functions
+    // Stop the robot
+    public void stopRobot() {
+        // NOT SO MUCH FULL POWAH!
+        front_left.setPower(0);
+        front_right.setPower(0);
+        back_left.setPower(0);
+        back_right.setPower(0);
+    }
+
+    // Move Forward or Backwards
+    public void frontBack(double powah, int time) {
+        // USER DEFINED POWAH!
+        front_left.setPower(powah);
+        front_right.setPower(powah);
+        back_left.setPower(powah);
+        back_right.setPower(powah);
+
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Play Sound
+    public void playSound(String sound, SoundPlayer.PlaySoundParams params) {
+        int soundID = myApp.getResources().getIdentifier(sound, "raw", myApp.getPackageName());
+        SoundPlayer.getInstance().startPlaying(myApp, soundID);
+    }
+    //// End of User Functions
+
     // Code to run ONCE when the driver hits INIT
     @Override
     public void init() {
+
         telemetry.addData("Status", "Initialized");
 
         // Initialize the hardware variables.
@@ -27,6 +75,9 @@ public class BasicAutonomous15 extends OpMode
         front_left = hardwareMap.get(DcMotor.class, "front_left");
         back_right = hardwareMap.get(DcMotor.class, "back_right");
         back_left = hardwareMap.get(DcMotor.class, "back_left");
+
+        front_left.setDirection(DcMotor.Direction.REVERSE);
+        back_right.setDirection(DcMotor.Direction.REVERSE);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -39,8 +90,14 @@ public class BasicAutonomous15 extends OpMode
     // Code to run ONCE when the driver hits PLAY
     @Override
     public void start() {
-
         runtime.reset();
+
+        //// Sound Stuff
+        // Create a sound parameter that holds the desired player parameters.
+        SoundPlayer.PlaySoundParams params = new SoundPlayer.PlaySoundParams();
+        params.loopControl = 0;
+        params.waitForNonLoopingSoundsToFinish = true;
+        //// Sound Stuff
 
         /*
          * If we had a gyro and wanted to do field-oriented control, here
@@ -63,37 +120,18 @@ public class BasicAutonomous15 extends OpMode
          * https://en.wikipedia.org/wiki/Rotation_(mathematics)#Two_dimensions
          */
 
-        // FULL POWAH!
-        double[] speeds = {
-                (-1.0),
-                (1.0),
-                (1.0),
-                (-1.0)
-        };
+        // Let everyone know we mean business
+        playSound("ss_power_up", params);
 
-        // apply the calculated values to the motors.
-        front_left.setPower(speeds[0]);
-        front_right.setPower(speeds[1]);
-        back_left.setPower(speeds[2]);
-        back_right.setPower(speeds[3]);
+        // Move backwards into the B zone
+        frontBack(-1, 2500);
 
-        try {
-            Thread.sleep(1500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        // Stop before moving over the line
+        stopRobot();
 
-        // NOT SO MUCH FULL POWAH!
-        speeds[0] = 0.0;
-        speeds[1] = 0.0;
-        speeds[2] = 0.0;
-        speeds[3] = 0.0;
+        // Move forward over the line
+        frontBack(1, 500);
 
-        // apply the calculated values to the motors.
-        front_left.setPower(speeds[0]);
-        front_right.setPower(speeds[1]);
-        back_left.setPower(speeds[2]);
-        back_right.setPower(speeds[3]);
 
     }
 

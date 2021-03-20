@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Basic Auto20", group="Autonomous")
-public class BasicAutonomous20 extends OpMode
+@Autonomous(name="Forwards A Zone", group="Autonomous")
+public class ForwardsAZone extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -16,6 +16,31 @@ public class BasicAutonomous20 extends OpMode
     private DcMotor front_left = null;
     private DcMotor back_right = null;
     private DcMotor back_left = null;
+
+    // User Functions
+    // Stop the robot
+    public void stopRobot() {
+        // NOT SO MUCH FULL POWAH!
+        front_left.setPower(0);
+        front_right.setPower(0);
+        back_left.setPower(0);
+        back_right.setPower(0);
+    }
+
+    // Move Forward or Backwards
+    public void frontBack(double powah, int time) {
+        // USER DEFINED POWAH!
+        front_left.setPower(powah);
+        front_right.setPower(powah);
+        back_left.setPower(powah);
+        back_right.setPower(powah);
+
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
     // Code to run ONCE when the driver hits INIT
     @Override
@@ -27,6 +52,9 @@ public class BasicAutonomous20 extends OpMode
         front_left = hardwareMap.get(DcMotor.class, "front_left");
         back_right = hardwareMap.get(DcMotor.class, "back_right");
         back_left = hardwareMap.get(DcMotor.class, "back_left");
+
+        front_left.setDirection(DcMotor.Direction.REVERSE);
+        back_right.setDirection(DcMotor.Direction.REVERSE);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -63,37 +91,11 @@ public class BasicAutonomous20 extends OpMode
          * https://en.wikipedia.org/wiki/Rotation_(mathematics)#Two_dimensions
          */
 
-        // FULL POWAH!
-        double[] speeds = {
-                (-1.0),
-                (1.0),
-                (1.0),
-                (-1.0)
-        };
+        // Move forwards into the A zone
+        frontBack(1, 2000);
 
-        // apply the calculated values to the motors.
-        front_left.setPower(speeds[0]);
-        front_right.setPower(speeds[1]);
-        back_left.setPower(speeds[2]);
-        back_right.setPower(speeds[3]);
-
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        // NOT SO MUCH FULL POWAH!
-        speeds[0] = 0.0;
-        speeds[1] = 0.0;
-        speeds[2] = 0.0;
-        speeds[3] = 0.0;
-
-        // apply the calculated values to the motors.
-        front_left.setPower(speeds[0]);
-        front_right.setPower(speeds[1]);
-        back_left.setPower(speeds[2]);
-        back_right.setPower(speeds[3]);
+        // Stop the robot in place
+        stopRobot();
 
     }
 
@@ -107,13 +109,6 @@ public class BasicAutonomous20 extends OpMode
     // Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
     @Override
     public void loop() {
-        // stop with button on controller
-        if (gamepad1.b) {
-            stop();
-        }
-
-        // Show the elapsed game time and wheel power.
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
     }
 
 }
