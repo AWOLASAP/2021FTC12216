@@ -54,6 +54,8 @@ public class BackwardsBZone extends OpMode
         back_right = hardwareMap.get(DcMotor.class, "back_right");
         back_left = hardwareMap.get(DcMotor.class, "back_left");
 
+
+
         front_left.setDirection(DcMotor.Direction.REVERSE);
         back_right.setDirection(DcMotor.Direction.REVERSE);
 
@@ -93,13 +95,15 @@ public class BackwardsBZone extends OpMode
          */
 
         // Move backwards into the B zone
-        frontBack(-1, 2500);
+        frontBack(-1, 2750);
 
         // Stop before moving over the line
         stopRobot();
 
         // Move forward over the line
-        frontBack(1, 500);
+        frontBack(1, 400);
+
+        stopRobot();
 
 
     }

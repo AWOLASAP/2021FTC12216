@@ -20,11 +20,23 @@ public class NormalMecanum extends OpMode
     private DcMotor front_left = null;
     private DcMotor back_right = null;
     private DcMotor back_left = null;
+
     private DcMotor wobble_arm = null;
     private DcMotor launcher = null;
     private DcMotor collector = null;
+
     private Servo wobble_servo = null;
     private Servo fire_servo = null;
+    private Servo wobble_claw = null;
+
+    // Pause, just pause
+    public void pause(int time) {
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
     // Code to run ONCE when the driver hits INIT
     @Override
@@ -36,11 +48,18 @@ public class NormalMecanum extends OpMode
         front_left = hardwareMap.get(DcMotor.class, "front_left");
         back_right = hardwareMap.get(DcMotor.class, "back_right");
         back_left = hardwareMap.get(DcMotor.class, "back_left");
+
         wobble_arm = hardwareMap.get(DcMotor.class, "wobble_arm");
         launcher = hardwareMap.get(DcMotor.class, "launcher");
         collector = hardwareMap.get(DcMotor.class, "collector");
+
         wobble_servo = hardwareMap.get(Servo.class, "wobble_servo");
         fire_servo = hardwareMap.get(Servo.class, "fire_servo");
+        wobble_claw = hardwareMap.get(Servo.class, "wobble_claw");
+
+
+        front_left.setDirection(DcMotor.Direction.REVERSE);
+        back_right.setDirection(DcMotor.Direction.REVERSE);
 
         front_right.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         front_left.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -71,21 +90,18 @@ public class NormalMecanum extends OpMode
     // Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
     @Override
     public void loop() {
-        // stop with button on controller
-        if (gamepad1.b)
-        {
-            stop();
-        }
+        // Position variable for the wobble claw
+        double wobble_claw_position = 0.0;
 
         // Wobble arm power, don't go overboard
         double wobblePower = 0;
         if (gamepad1.right_trigger > 0.05) {
-            wobblePower = gamepad1.right_trigger / 2;
+            wobblePower = -gamepad1.right_trigger / 2;
         } else if (gamepad1.left_trigger > 0.05) {
-            wobblePower = -gamepad1.left_trigger / 2;
+            wobblePower = gamepad1.left_trigger / 2;
         }
 
-        // Wobble claw servo
+        // Wobble hand servo
         if (gamepad1.a) {
             wobble_servo.setPosition(0.38);
         } else if (gamepad1.b) {
@@ -94,14 +110,22 @@ public class NormalMecanum extends OpMode
 
         // Fire servo
         if (gamepad1.x) {
-			fire_servo.setPosition(0.55);
+			fire_servo.setPosition(0.45);
 		} else if (gamepad1.y) {
 			fire_servo.setPosition(0.05);
 		}
 
+        // Fire servo complete
+        if (gamepad1.right_bumper) {
+            fire_servo.setPosition(0.05);
+            pause(250);
+            fire_servo.setPosition(0.45);
+        }
+
         // Launcher motor
         if (gamepad1.dpad_right) {
-            launcher.setPower(-0.75);
+            launcher.setPower(-0.725);
+            //launcher.setPower(-1);
         } else if (gamepad1.dpad_left) {
             launcher.setPower(0);
         }
@@ -113,11 +137,20 @@ public class NormalMecanum extends OpMode
             collector.setPower(0);
         }
 
+        // Drop or raise the wobble claw
+        if (gamepad1.left_bumper) {
+            wobble_claw_position = 0.8;
+            wobble_claw.setPosition(wobble_claw_position);
+        } else if (gamepad1.back) {
+            wobble_claw_position = 0.3;
+            wobble_claw.setPosition(wobble_claw_position);
+        }
+
         // Mecanum drive is controlled with three axes: drive (front-and-back),
         // strafe (left-and-right), and twsist (rotating the whole chassis).
-        double drive  = -gamepad1.left_stick_x;
-        double strafe = -gamepad1.right_stick_x;
-        double twist  = gamepad1.right_stick_y;
+        double drive  = -gamepad1.right_stick_y;
+        double strafe = gamepad1.right_stick_x;
+        double twist  = -gamepad1.left_stick_x;
 
         /*
          * If we had a gyro and wanted to do field-oriented control, here
@@ -144,8 +177,8 @@ public class NormalMecanum extends OpMode
         // the motor.  This is not an issue with the calculations themselves.
         double[] speeds = {
                 (drive + strafe + twist),
-                (-1 * (drive - strafe - twist)),
-                (-1 * (drive - strafe + twist)),
+                (drive - strafe - twist),
+                (drive - strafe + twist),
                 (drive + strafe - twist)
         };
 

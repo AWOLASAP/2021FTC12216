@@ -28,7 +28,7 @@ public class BackwardsBZoneWSounds extends OpMode
 
     boolean soundPlaying = false;
 
-    Context myApp = hardwareMap.appContext;
+
     //// Sound Stuff
 
 
@@ -57,8 +57,17 @@ public class BackwardsBZoneWSounds extends OpMode
         }
     }
 
+    // Pause, just pause
+    public void pause(int time) {
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     // Play Sound
-    public void playSound(String sound, SoundPlayer.PlaySoundParams params) {
+    public void playSound(String sound, Context myApp) {
         int soundID = myApp.getResources().getIdentifier(sound, "raw", myApp.getPackageName());
         SoundPlayer.getInstance().startPlaying(myApp, soundID);
     }
@@ -93,8 +102,11 @@ public class BackwardsBZoneWSounds extends OpMode
         runtime.reset();
 
         //// Sound Stuff
-        // Create a sound parameter that holds the desired player parameters.
+        Context myApp = hardwareMap.appContext;
+
         SoundPlayer.PlaySoundParams params = new SoundPlayer.PlaySoundParams();
+
+        // Create a sound parameter that holds the desired player parameters.
         params.loopControl = 0;
         params.waitForNonLoopingSoundsToFinish = true;
         //// Sound Stuff
@@ -121,17 +133,37 @@ public class BackwardsBZoneWSounds extends OpMode
          */
 
         // Let everyone know we mean business
-        playSound("ss_power_up", params);
+        playSound("ss_power_up", myApp);
+        // Let the sound sink in for a moment
+        pause(3000);
 
+        // ZOOOOM
+        //playSound("ss_light_speed", myApp);
         // Move backwards into the B zone
-        frontBack(-1, 2500);
-
+        frontBack(-1, 2750);
         // Stop before moving over the line
         stopRobot();
 
-        // Move forward over the line
-        frontBack(1, 500);
+        pause(3000);
 
+
+        // Have some more fun with sounds
+        playSound("ss_light_saber_short", myApp);
+        // Move forward over the line
+        frontBack(1, 400);
+
+        // Have even more fun with sounds
+        playSound("ss_mf_fail", myApp);
+
+        // Give 'em a show
+        pause(3000);
+        playSound("ss_laser_burst", myApp);
+        pause(1000);
+        playSound("ss_light_saber_long", myApp);
+        pause(3000);
+        playSound("ss_bb8_up", myApp);
+        pause(5000);
+        playSound("ss_wookie", myApp);
 
     }
 
