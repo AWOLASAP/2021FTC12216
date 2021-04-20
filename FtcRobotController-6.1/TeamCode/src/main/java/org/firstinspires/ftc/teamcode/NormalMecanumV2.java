@@ -169,10 +169,10 @@ public class NormalMecanum extends OpMode
         backLeftPower += gamepad1.left_stick_x;
         backRightPower += -gamepad1.left_stick_x;
 
-        frontRight.setPower(frontRightPower);
-        frontLeft.setPower(frontLeftPower);
-        backRight.setPower(backRightPower);
-        backLeft.setPower(backLeftPower );
+        front_right.setPower(frontRightPower);
+        front_left.setPower(frontLeftPower);
+        back_right.setPower(backRightPower);
+        back_left.setPower(backLeftPower);
         /*
          * If we had a gyro and wanted to do field-oriented control, here
          * is where we would implement it.
