@@ -4,13 +4,12 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Forwards B Zone", group="Autonomous")
-public class ForwardsBZone extends LinearOpMode
+@Autonomous(name="Forwards B Zone Goals", group="Autonomous")
+public class ForwardsBZoneGoals extends LinearOpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -153,17 +152,17 @@ public class ForwardsBZone extends LinearOpMode
             stopRobot();
 
             // Move forward over the line
-            frontBack(-1, 1200);
+            frontBack(-1, 1300);
 
             stopRobot();
 
             pause(100);
 
             // Twist a bit
-            twist(1, 200);
+            twist(1, 100);
 
             // Launch a ring
-            launcher.setPower(-0.65);
+            launcher.setPower(-0.7);
             pause(500);
             fire_servo.setPosition(0.05);
             pause(500);
@@ -171,11 +170,9 @@ public class ForwardsBZone extends LinearOpMode
 
             pause(1000);
 
-            // Twist a bit
-            twist(1, 50);
 
             // Launch a ring
-            launcher.setPower(-.65);
+            launcher.setPower(-.7);
             pause(500);
             fire_servo.setPosition(0.05);
             pause(500);
@@ -183,11 +180,9 @@ public class ForwardsBZone extends LinearOpMode
 
             pause(1000);
 
-            // Twist a bit
-            twist(1, 30);
 
             // Launch a ring
-            launcher.setPower(-.65);
+            launcher.setPower(-.7);
             pause(500);
             fire_servo.setPosition(0.05);
             pause(500);
