@@ -4,14 +4,13 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Forwards B Zone", group="Autonomous")
-public class ForwardsBZone extends LinearOpMode
+@Autonomous(name="Powershot B Goal", group="Autonomous")
+public class PowerShotBGoal extends LinearOpMode
 {
     // Declare OpMode members
     private ElapsedTime runtime = new ElapsedTime();
@@ -51,6 +50,12 @@ public class ForwardsBZone extends LinearOpMode
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        // NOT SO MUCH FULL POWAH!
+        front_left.setPower(0);
+        front_right.setPower(0);
+        back_left.setPower(0);
+        back_right.setPower(0);
     }
 
     // Twist a bit
@@ -67,6 +72,35 @@ public class ForwardsBZone extends LinearOpMode
             front_right.setPower(-1);
             back_left.setPower(1);
             back_right.setPower(-1);
+        }
+
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // NOT SO MUCH FULL POWAH!
+        front_left.setPower(0);
+        front_right.setPower(0);
+        back_left.setPower(0);
+        back_right.setPower(0);
+    }
+
+    // Slowly twist a bit
+    public void slowTwist(int dir, int time) {
+        if (dir > 0) {
+            // USER DEFINED POWAH!
+            front_left.setPower(-0.5);
+            front_right.setPower(0.5);
+            back_left.setPower(-0.5);
+            back_right.setPower(0.5);
+        } else {
+            // USER DEFINED POWAH!
+            front_left.setPower(0.5);
+            front_right.setPower(-0.5);
+            back_left.setPower(0.5);
+            back_right.setPower(-0.5);
         }
 
         try {
@@ -150,21 +184,10 @@ public class ForwardsBZone extends LinearOpMode
             // Pause for the servo
             pause(1000);
 
-            // Move backwards into the B zone
-            frontBack(1, 2800);
-
-            // Stop before moving over the line
-            stopRobot();
-
-            // Move forward over the line
-            frontBack(-1, 1200);
-
-            stopRobot();
+            // Move Fowards to launch line
+            frontBack(1, 1800);
 
             pause(100);
-
-            // Twist a bit
-            twist(1, 200);
 
             // Launch a ring
             launcherVelocity = -1910;
@@ -177,7 +200,7 @@ public class ForwardsBZone extends LinearOpMode
             pause(1000);
 
             // Twist a bit
-            twist(1, 40);
+            twist(1, 70);
 
             // Launch a ring
             pause(500);
@@ -190,7 +213,7 @@ public class ForwardsBZone extends LinearOpMode
             pause(1000);
 
             // Twist a bit
-            twist(1, 40);
+            twist(1, 70);
 
             // Launch a ring
             pause(500);
@@ -200,13 +223,14 @@ public class ForwardsBZone extends LinearOpMode
 
             pause(1000);
 
-            // Move backwards into the B zone
-            frontBack(1, 200);
+            // Twist to B zone
+            slowTwist(-1, 900);
 
-            // Stop before moving over the line
-            stopRobot();
+            // Move to be zone
+            frontBack(1, 1250);
 
-            pause(1000);
+            // Move back over the line
+            frontBack(-1, 800);
 
             stopRobot();
 

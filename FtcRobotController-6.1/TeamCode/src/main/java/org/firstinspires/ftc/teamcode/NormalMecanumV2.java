@@ -7,12 +7,13 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-@TeleOp(name="Normal Mecanum", group="Iterative Opmode")
-public class NormalMecanum extends OpMode
+@TeleOp(name="Normal MecanumV2", group="Iterative Opmode")
+public class NormalMecanumV2 extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -22,12 +23,15 @@ public class NormalMecanum extends OpMode
     private DcMotor back_left = null;
 
     private DcMotor wobble_arm = null;
-    private DcMotor launcher = null;
+    private DcMotorEx launcher = null;
     private DcMotor collector = null;
 
     private Servo wobble_servo = null;
     private Servo fire_servo = null;
     private Servo wobble_claw = null;
+
+    private Servo Yaw = null;
+    private Servo Pitch = null;
 
     // Pause, just pause
     public void pause(int time) {
@@ -50,16 +54,21 @@ public class NormalMecanum extends OpMode
         back_left = hardwareMap.get(DcMotor.class, "back_left");
 
         wobble_arm = hardwareMap.get(DcMotor.class, "wobble_arm");
-        launcher = hardwareMap.get(DcMotor.class, "launcher");
+        launcher  = hardwareMap.get(DcMotorEx.class, "launcher");
         collector = hardwareMap.get(DcMotor.class, "collector");
 
         wobble_servo = hardwareMap.get(Servo.class, "wobble_servo");
         fire_servo = hardwareMap.get(Servo.class, "fire_servo");
         wobble_claw = hardwareMap.get(Servo.class, "wobble_claw");
 
+        Yaw = hardwareMap.get(Servo.class, "yaw");
+        Pitch = hardwareMap.get(Servo.class, "pitch");
+
 
         front_left.setDirection(DcMotor.Direction.REVERSE);
         back_right.setDirection(DcMotor.Direction.REVERSE);
+
+        launcher.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         front_right.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         front_left.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -69,6 +78,7 @@ public class NormalMecanum extends OpMode
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
+
     }
 
     // Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
@@ -87,6 +97,8 @@ public class NormalMecanum extends OpMode
     @Override
     public void stop() { }
 
+    // Launcher with encoders
+    double launcherVelocity = 0;
     // Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
     @Override
     public void loop() {
@@ -110,10 +122,10 @@ public class NormalMecanum extends OpMode
 
         // Fire servo
         if (gamepad1.x) {
-			fire_servo.setPosition(0.45);
-		} else if (gamepad1.y) {
-			fire_servo.setPosition(0.05);
-		}
+            fire_servo.setPosition(0.45);
+        } else if (gamepad1.y) {
+            fire_servo.setPosition(0.05);
+        }
 
         // Fire servo complete
         if (gamepad1.right_bumper) {
@@ -123,12 +135,26 @@ public class NormalMecanum extends OpMode
         }
 
         // Launcher motor
+        /*
         if (gamepad1.dpad_right) {
             launcher.setPower(-0.725);
             //launcher.setPower(-1);
+        } else if (gamepad1.start) {
+            launcher.setPower(-0.675);
         } else if (gamepad1.dpad_left) {
             launcher.setPower(0);
         }
+        */
+
+        if (gamepad1.dpad_right) {
+            launcherVelocity = -2000;
+        } else if (gamepad1.start) {
+            launcherVelocity = -1910;
+        } else if (gamepad1.dpad_left) {
+            launcherVelocity = 0;
+        }
+
+        launcher.setVelocity(launcherVelocity);
 
         // Collector motor
         if (gamepad1.dpad_up) {
@@ -142,9 +168,14 @@ public class NormalMecanum extends OpMode
             wobble_claw_position = 0.8;
             wobble_claw.setPosition(wobble_claw_position);
         } else if (gamepad1.back) {
-            wobble_claw_position = 0.3;
+            wobble_claw_position = 0.4;
             wobble_claw.setPosition(wobble_claw_position);
         }
+
+        // Gimbal
+        Yaw.setPosition(0.24);
+        Pitch.setPosition(0.78);
+
 
         // Mecanum drive is controlled with three axes: drive (front-and-back),
         // strafe (left-and-right), and twsist (rotating the whole chassis).
@@ -164,10 +195,10 @@ public class NormalMecanum extends OpMode
         backLeftPower -= gamepad1.right_stick_x;
         backRightPower -= -gamepad1.right_stick_x;
 
-        frontRightPower += -gamepad1.left_stick_x;
-        frontLeftPower += gamepad1.left_stick_x;
-        backLeftPower += gamepad1.left_stick_x;
-        backRightPower += -gamepad1.left_stick_x;
+        frontRightPower -= -gamepad1.left_stick_x;
+        frontLeftPower -= gamepad1.left_stick_x;
+        backLeftPower -= gamepad1.left_stick_x;
+        backRightPower -= -gamepad1.left_stick_x;
 
         front_right.setPower(frontRightPower);
         front_left.setPower(frontLeftPower);
@@ -199,9 +230,9 @@ public class NormalMecanum extends OpMode
         wobble_arm.setPower(wobblePower);
 
         // Show the elapsed game time and wheel power.
-        telemetry.addData("Thingy: ", "Wobble Arm Encoder " + wobble_arm.getCurrentPosition());
+        telemetry.addData("Thingy: ", "Launcher Encoder" + launcher.getCurrentPosition());
         // Show wheel power
-        telemetry.addData("Motor", "frontRight (%.2f), frontLeft (%.2f), backRight (%.2f), backLeft (%.2f)", frontRightPower, frontLeftPower, backRightPower, backLeftPower);
+        telemetry.addData("Motor", "roll (%.2f), pitch (%.2f)", ((gamepad2.left_stick_x + 1 )/2), ((gamepad2.right_stick_y + 1) / 2));
 
     }
 
