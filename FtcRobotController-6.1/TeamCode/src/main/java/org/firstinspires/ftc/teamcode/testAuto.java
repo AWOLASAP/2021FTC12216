@@ -37,7 +37,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 
 @Autonomous(name="Image", group="Autonomous")
-public class WebcamExample extends LinearOpMode
+public class ImageExample extends LinearOpMode
 {
     OpenCvCamera webcam;
 
